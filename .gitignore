@@ -1,0 +1,5 @@
+node_modules/
+*.env
+*.Dockerfile
+*.key
+submissionmlgc-andre-9958adcd2aa3.json
