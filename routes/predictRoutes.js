@@ -18,21 +18,7 @@ const upload = multer({
 // Gunakan middleware upload di dalam router dan tangani error secara manual
 router.post("/predict", (req, res, next) => {
   upload(req, res, async (err) => {
-    // Jika ada error, tangani di sini
-    if (err) {
-      if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
-        return res.status(413).json({
-          status: "fail",
-          message:
-            "Payload content length greater than maximum allowed: 1000000",
-        });
-      }
-      // Tangani error lainnya
-      return next(errorHandler(err));
-    }
-
     try {
-      // Lanjutkan jika file berhasil diterima
       const model = await loadModel();
       const result = await predictImage(model, req.file.buffer);
       const id = uuidv4();
@@ -56,6 +42,20 @@ router.post("/predict", (req, res, next) => {
         data: prediction,
       });
     } catch (err) {
+      if (err) {
+        if (
+          err instanceof multer.MulterError &&
+          err.code === "LIMIT_FILE_SIZE"
+        ) {
+          return res.status(413).json({
+            status: "fail",
+            message:
+              "Payload content length greater than maximum allowed: 1000000",
+          });
+        }
+        // Tangani error lainnya
+        return next(errorHandler(err));
+      }
       console.error("Error during file upload or prediction:", err);
       next(errorHandler(err));
     }
