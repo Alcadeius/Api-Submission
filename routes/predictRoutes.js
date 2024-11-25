@@ -16,51 +16,46 @@ const upload = multer({
 }).single("image");
 
 // Gunakan middleware upload di dalam router dan tangani error secara manual
-router.post("/predict", (req, res, next) => {
-  upload(req, res, async (err) => {
-    try {
-      const model = await loadModel();
-      const result = await predictImage(model, req.file.buffer);
-      const id = uuidv4();
-      const createdAt = new Date().toISOString();
+router.post("/predict", upload, async (req, res, error, next) => {
+  try {
+    const model = await loadModel();
+    const result = await predictImage(model, req.file.buffer);
+    const id = uuidv4();
+    const createdAt = new Date().toISOString();
 
-      const prediction = {
-        id,
-        result: result === "Cancer" ? "Cancer" : "Non-cancer",
-        suggestion:
-          result === "Cancer"
-            ? "Segera periksa ke dokter!"
-            : "Penyakit kanker tidak terdeteksi.",
-        createdAt,
-      };
+    const prediction = {
+      id,
+      result: result === "Cancer" ? "Cancer" : "Non-cancer",
+      suggestion:
+        result === "Cancer"
+          ? "Segera periksa ke dokter!"
+          : "Penyakit kanker tidak terdeteksi.",
+      createdAt,
+    };
 
-      await savePrediction(prediction);
+    await savePrediction(prediction);
 
-      res.status(201).json({
-        status: "success",
-        message: "Model is predicted successfully",
-        data: prediction,
-      });
-    } catch (err) {
-      if (err) {
-        if (
-          err instanceof multer.MulterError &&
-          err.code === "LIMIT_FILE_SIZE"
-        ) {
-          return res.status(413).json({
-            status: "fail",
-            message:
-              "Payload content length greater than maximum allowed: 1000000",
-          });
-        }
-        // Tangani error lainnya
-        return next(errorHandler(err));
+    res.status(201).json({
+      status: "success",
+      message: "Model is predicted successfully",
+      data: prediction,
+    });
+  } catch (err) {
+    if (error) {
+      if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
+        return res.status(413).json({
+          status: "fail",
+          message:
+            "Payload content length greater than maximum allowed: 1000000",
+        });
       }
-      console.error("Error during file upload or prediction:", err);
-      next(errorHandler(err));
     }
-  });
+
+    // Tangani error lainnya dengan errorHandler
+    next(errorHandler(err));
+  }
 });
+
 // Endpoint GET /predict/histories
 router.get("/predict/histories", async (req, res, next) => {
   try {
