@@ -24,10 +24,6 @@ router.post("/predict", (req, res, next) => {
         message: "Payload content length greater than maximum allowed: 1000000",
       });
     }
-    if (err) {
-      return next(errorHandler(err));
-    }
-
     try {
       if (!req.file) {
         return res.status(400).json({
