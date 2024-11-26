@@ -55,7 +55,7 @@ router.post("/predict", (req, res, next) => {
         data: prediction,
       });
     } catch (err) {
-      next(errorHandler(err)); // Tangani error lainnya
+      next(errorHandler(err));
     }
   });
 });

@@ -7,7 +7,8 @@ let model;
 const loadModel = async () => {
   if (!model) {
     try {
-      const modelUrl = process.env.MODEL_URL;
+      const modelUrl =
+        "https://storage.googleapis.com/ml-submission/model-ml/model.json";
       model = await tf.loadGraphModel(modelUrl);
     } catch (err) {
       throw new Error("Gagal memuat model");
