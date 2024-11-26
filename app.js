@@ -1,19 +1,20 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 const predictRoutes = require("./routes/predictRoutes");
-// const errorHandler = require("./utils/errorHandler");
 
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 app.use("/", predictRoutes);
 
 app.use((err, req, res, next) => {
-  console.error("Error stack:", err.stack); // Tambahkan log error yang lebih rinci
+  console.error("Error stack:", err.stack);
   const statusCode = err.status || 500;
   res.status(statusCode).json({
     status: "fail",
     message: err.message || "Terjadi kesalahan",
-    error: err, // Sertakan detail error dalam respons
+    error: err,
   });
 });
 

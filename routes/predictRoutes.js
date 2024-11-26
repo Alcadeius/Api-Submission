@@ -15,7 +15,6 @@ const upload = multer({
   limits: { fileSize: 1 * 1024 * 1024 }, // 1 MB
 }).single("image");
 
-// Gunakan middleware upload di dalam router dan tangani error secara manual
 router.post("/predict", (req, res, next) => {
   upload(req, res, async (err) => {
     if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
@@ -60,7 +59,6 @@ router.post("/predict", (req, res, next) => {
   });
 });
 
-// Endpoint GET /predict/histories
 router.get("/predict/histories", async (req, res, next) => {
   try {
     const predictions = await getAllPredictions();
